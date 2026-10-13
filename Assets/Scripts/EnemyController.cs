@@ -39,6 +39,11 @@ public class EnemyController : MonoBehaviour
 
     }
 
+    float DistanceToPlayer()
+    {
+        return Vector3.Distance(transform.position, player.position);
+    }
+
     abstract class State
     {
         public EnemyController ai;
@@ -73,6 +78,10 @@ public class EnemyController : MonoBehaviour
 
         public override void Execute()
         {
+            if (ai.DistanceToPlayer() <= ai.detectionRange)
+            {
+                
+            }
 
         }
     }
