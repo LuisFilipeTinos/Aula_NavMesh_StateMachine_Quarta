@@ -1,31 +1,47 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(NavMeshAgent))]
+
+[RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
 public class EnemyController : MonoBehaviour
 {
-    [SerializeField] Transform player;
-    [SerializeField] Transform pointA;
-    [SerializeField] Transform pointB;
+    [SerializeField] private Transform player;
+    [SerializeField] private Transform pointA;
+    [SerializeField] private Transform pointB;
 
-    //Variáveis de controle de estado:
-    [SerializeField] float patrolSpeed = 1f;
-    [SerializeField] float chasingSpeed = 2.5f;
-    [SerializeField] float detectionRange = 15f;
-    [SerializeField] float loseRange = 20f;
-    [SerializeField] float attackRange = 1f;
 
-    public bool IdDead { get; private set; }
+    [SerializeField] private float patrolSpeed = 1f;
+    [SerializeField] private float chaseSpeed = 2.5f;
+    [SerializeField] private float detectionRange = 15f;
+    [SerializeField] private float loseRange = 20f;
+    [SerializeField] private float attackRange = 1f;
 
-    NavMeshAgent agent;
-    Animator animator;
+
+    public bool IsDead { get; private set; }
+
+
+    private NavMeshAgent agent;
+    private Animator animator;
+
+
+    PatrolState patrol;
+
+
+    public float DistanceToPlayer()
+    {
+        return Vector3.Distance(transform.position, player.position);
+    }
+
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+
+        patrol = new PatrolState(this);
     }
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -33,34 +49,44 @@ public class EnemyController : MonoBehaviour
 
     }
 
+
     // Update is called once per frame
     void Update()
     {
 
     }
 
-    float DistanceToPlayer()
+
+    void ChangeState(State nextState)
     {
-        return Vector3.Distance(transform.position, player.position);
+
+
     }
+
 
     abstract class State
     {
         public EnemyController ai;
-        public State(EnemyController artificialIntelligence)
+
+
+        public State(EnemyController enemyCon)
         {
-            ai = artificialIntelligence;
+            ai = enemyCon;
         }
+
 
         public abstract void Enter();
         public abstract void Execute();
     }
 
+
     class PatrolState : State
     {
         Transform target;
 
-        public PatrolState(EnemyController ai) : base(ai) { }
+
+        public PatrolState(EnemyController enemyCon) : base(enemyCon) { }
+
 
         public override void Enter()
         {
@@ -68,21 +94,23 @@ public class EnemyController : MonoBehaviour
             ai.agent.isStopped = false;
             ai.agent.speed = ai.patrolSpeed;
 
+
             if (target == null)
             {
                 target = ai.pointA;
             }
 
+
             ai.agent.SetDestination(target.position);
         }
+
 
         public override void Execute()
         {
             if (ai.DistanceToPlayer() <= ai.detectionRange)
             {
-                
+                //Alteração de estado!
             }
-
         }
     }
 }
